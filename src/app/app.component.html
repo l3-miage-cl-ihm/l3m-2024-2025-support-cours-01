@@ -1,27 +1,22 @@
-Mes 10 collèges sont :
 
-<table>
-    <thead>
-        <th>Nom</th>
-        <th>Nombre d'élèves</th>
-    </thead>
-    <tbody>
-        @for(c of colleges(); track c.denomination_principale) {
-            <tr>
-                <td>
-                    {{ c.denomination_principale }}
-                </td>
-                <td>
-                    {{ c.nombre_eleves_total }}
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+<label>
+    Nombre d'établissements par page 
+    <input  [ngModel]       = "nbPerPage()"
+            (ngModelChange) = "nbPerPage.set($event)"
+            type = "number"
+            />
+</label>
 
-<button (click)="previousPage()"
-        [disabled]="currentPage() === 0"
->Précédents
-</button>
-Page courante {{ currentPage() }}
-<button (click)="nextPage()">Suivants</button>
+<app-colleges-table 
+        [data]      = "colleges()"
+        [nbPerPage] = "nbPerPage()"
+        ></app-colleges-table>
+
+<hr/>
+<h4>On filtre</h4>
+<app-filtre-college (filterFct)="filter.set($event)"
+        ></app-filtre-college>
+
+<app-colleges-table 
+        [data]      = "filteredColleges()"
+></app-colleges-table>

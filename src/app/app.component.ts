@@ -1,42 +1,36 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { DataProcessService } from './services/data-process.service';
+import { CollegesTableComponent } from './components/colleges-table/colleges-table.component';
+import { FormsModule } from '@angular/forms';
 import { College } from './data/college.interface';
-
+import { FiltreCollegeComponent } from './components/filtre-college/filtre-college.component';
 @Component({
     selector: 'app-root',
-    imports: [],
+    imports: [
+      CollegesTableComponent,
+      FiltreCollegeComponent,
+      FormsModule
+    ],
     templateUrl: './app.component.html',
     styleUrl: './app.component.scss'
 })
 export class AppComponent {
   private readonly dataProcessSrv = inject(DataProcessService);
+  protected readonly colleges = this.dataProcessSrv.colleges;
 
-  // Système de pagination
-  private readonly _currentPage = signal(0);
-  protected readonly currentPage = this._currentPage.asReadonly();
-  
-  private readonly _nbElementsPerPage = signal(10);
-  protected readonly nbPages = computed(
-    () => Math.ceil( this.colleges().length / this._nbElementsPerPage() )
-  )
+  protected readonly nbPerPage = signal<number>(10);
 
-  // Dériver un signal des 10 premiers établissements
-  protected readonly colleges = computed<readonly College[]>(
+  /**
+   * Filtres
+   */
+  protected readonly filter = signal<(college: College) => boolean>(
+    () => true
+  );
+
+  protected readonly filteredColleges = computed<readonly College[]>(
     () => {
-      const start = this._currentPage() * this._nbElementsPerPage();
-      return this.dataProcessSrv.colleges().slice(start, start + this._nbElementsPerPage())
+      console.log('filtering colleges', this.filter());
+      return this.colleges().filter(this.filter())
     }
-  )
-
-  protected previousPage() {
-    this._currentPage.set(
-      this._currentPage() - 1
-    )
-  }
-
-  protected nextPage() {
-    this._currentPage.set(
-      this._currentPage() + 1
-    )
-  }
+  );
 }
